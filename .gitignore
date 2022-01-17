@@ -1,0 +1,6 @@
+.vimrc
+/node_modules
+/client
+.env
+
+/public/uploads/
