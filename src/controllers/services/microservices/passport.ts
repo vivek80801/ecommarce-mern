@@ -57,8 +57,6 @@ export const jwtPassport = (passport: passport.PassportStatic) => {
           return done(err, false);
         }
         if (user) {
-            console.log(jwt_payload)
-          console.log(user);
           return done(null, user);
         } else {
           return done(null, false);
