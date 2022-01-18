@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { UserModal } from "../modals/user";
 import { ProductModal } from "../modals/product";
+import { User } from "./services/user";
 
 export const addToCart = (req: Request, res: Response) => {
   const { id } = req.body;
   ProductModal.findById(id, (err: any, productDoc: any) => {
-    console.log(typeof productDoc._doc.price);
     if (err) {
       console.log(err);
     } else {
@@ -44,7 +44,6 @@ export const addToCart = (req: Request, res: Response) => {
                   if (err) {
                     console.log(err);
                   } else {
-                    console.log("matched: " + matched);
                     res.json({
                       msg: "ok",
                       cart: {
@@ -146,7 +145,7 @@ export const decCart = (req: Request, res: Response) => {
           let quan = 1;
           userDoc.cart.map((pro: any) => {
             if (JSON.stringify(pro._id) === JSON.stringify(productDoc._id)) {
-              quan = pro.quantity + 1;
+              quan = pro.quantity - 1;
             }
           });
           UserModal.updateOne(
@@ -179,4 +178,22 @@ export const decCart = (req: Request, res: Response) => {
   if (errors) {
     res.json({ msg: "something went wrong" });
   }
+};
+
+export const deleteFromCart = (req: Request, res: Response) => {
+  const { id } = req.body;
+  UserModal.updateOne(
+    //@ts-ignore
+    { _id: req.user._id },
+    {
+      $pull: { cart: { _id: id } },
+    },
+    (err: any, doc: any) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.json({ msg: "deleted", cart: doc });
+      }
+    }
+  );
 };
