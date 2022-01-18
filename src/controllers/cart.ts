@@ -82,11 +82,101 @@ export const getCart = (req: Request, res: Response) => {
 };
 
 export const incCart = (req: Request, res: Response) => {
-  console.log(req.body);
-  res.json({ msg: "increment quantity of item" });
+  const { id } = req.body;
+  let errors = false;
+  //@ts-ignore
+  UserModal.findById(req.user._id, (err: any, userDoc: any) => {
+    if (err) {
+      console.log(err);
+    } else {
+      ProductModal.findById(id, (err: any, productDoc: any) => {
+        if (err) {
+          console.log(err);
+        } else {
+          let quan = 1;
+          userDoc.cart.map((pro: any) => {
+            if (JSON.stringify(pro._id) === JSON.stringify(productDoc._id)) {
+              quan = pro.quantity + 1;
+            }
+          });
+          UserModal.updateOne(
+            { _id: userDoc._id, "cart._id": productDoc._id },
+            {
+              $inc: { "cart.$.quantity": 1 },
+              $set: { "cart.$.subTotal": productDoc.price * quan },
+            },
+            (err: any, doc: any) => {
+              if (err) {
+                console.log(err);
+              } else {
+                UserModal.findById(userDoc._id, (err: any, newDoc: any) => {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    res.json({
+                      msg: "increment quantity of item",
+                      cart: newDoc.cart,
+                    });
+                  }
+                });
+              }
+            }
+          );
+        }
+      });
+    }
+  });
+  if (errors) {
+    res.json({ msg: "something went wrong" });
+  }
 };
 
 export const decCart = (req: Request, res: Response) => {
-  console.log(req.body);
-  res.json({ msg: "decrement quantity of item" });
+  const { id } = req.body;
+  let errors = false;
+  //@ts-ignore
+  UserModal.findById(req.user._id, (err: any, userDoc: any) => {
+    if (err) {
+      console.log(err);
+    } else {
+      ProductModal.findById(id, (err: any, productDoc: any) => {
+        if (err) {
+          console.log(err);
+        } else {
+          let quan = 1;
+          userDoc.cart.map((pro: any) => {
+            if (JSON.stringify(pro._id) === JSON.stringify(productDoc._id)) {
+              quan = pro.quantity + 1;
+            }
+          });
+          UserModal.updateOne(
+            { _id: userDoc._id, "cart._id": productDoc._id },
+            {
+              $inc: { "cart.$.quantity": -1 },
+              $set: { "cart.$.subTotal": productDoc.price * quan },
+            },
+            (err: any, doc: any) => {
+              if (err) {
+                console.log(err);
+              } else {
+                UserModal.findById(userDoc._id, (err: any, newDoc: any) => {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    res.json({
+                      msg: "decrement quantity of item",
+                      cart: newDoc.cart,
+                    });
+                  }
+                });
+              }
+            }
+          );
+        }
+      });
+    }
+  });
+  if (errors) {
+    res.json({ msg: "something went wrong" });
+  }
 };
