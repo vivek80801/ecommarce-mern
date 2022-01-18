@@ -52,11 +52,13 @@ export const opts = {
 export const jwtPassport = (passport: passport.PassportStatic) => {
   passport.use(
     new JWTStrategy(opts, (jwt_payload, done) => {
-      UserModal.findOne({ id: jwt_payload.sub }, (err: any, user: any) => {
+      UserModal.findOne({ _id: jwt_payload.sub }, (err: any, user: any) => {
         if (err) {
           return done(err, false);
         }
         if (user) {
+            console.log(jwt_payload)
+          console.log(user);
           return done(null, user);
         } else {
           return done(null, false);
