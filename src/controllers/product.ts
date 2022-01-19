@@ -55,20 +55,14 @@ export const editProduct = (req: Request, res: Response) => {
     if (err) {
       console.log(JSON.stringify(err));
     } else {
-      const newFileName =
-        __dirname.replace("/src/controllers", "/public/") + doc.img;
-      fs.unlink(newFileName, (err) => {
-        if (err) {
-          console.log(JSON.stringify(err));
-        }
+      if (req.file === undefined) {
         ProductModal.findOneAndUpdate(
           { _id: id },
           {
             name: name,
             price: parseInt(price),
             details: des,
-            //@ts-ignore
-            img: `uploads/${req?.file?.filename}`,
+            img: doc.img,
           },
           { new: true },
           (err, doc) => {
@@ -79,7 +73,33 @@ export const editProduct = (req: Request, res: Response) => {
             }
           }
         );
-      });
+      } else {
+        const newFileName =
+          __dirname.replace("/src/controllers", "/public/") + doc.img;
+        fs.unlink(newFileName, (err) => {
+          if (err) {
+            console.log(JSON.stringify(err));
+          }
+          ProductModal.findOneAndUpdate(
+            { _id: id },
+            {
+              name: name,
+              price: parseInt(price),
+              details: des,
+              //@ts-ignore
+              img: `uploads/${req?.file?.filename}`,
+            },
+            { new: true },
+            (err, doc) => {
+              if (err) {
+                console.log(JSON.stringify(err));
+              } else {
+                res.json({ msg: "product edited", newProduct: doc });
+              }
+            }
+          );
+        });
+      }
     }
   });
 };
